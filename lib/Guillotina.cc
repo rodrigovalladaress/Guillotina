@@ -16,7 +16,7 @@ Guillotina::Guillotina(int altoLamina, int anchoLamina, const vector<Pieza>& vec
 }
 
 Guillotina::Guillotina(int altoLamina, int anchoLamina, int numeroPiezas, int* longPiezas,
-	   int* anchoPiezas, int* benefPiezas) {
+	               int* anchoPiezas, int* benefPiezas) {
   setAltoLamina(altoLamina);
   setAnchoLamina(anchoLamina);
   for(int i = 0; i < numeroPiezas; i++) {
@@ -35,7 +35,6 @@ void Guillotina::calcularMatriz(void) {
   for(int i = 0; i <= anchoLamina; i++) {
     for(int j = 0; j <= altoLamina; j++) {
       auxMax = piezaMaxBeneficio(i, j); // H(x, y)
-      //piezasSolucion.push_back(
       for(int x0 = 0; x0 <= i / 2; x0++) { // x0 <= x / 2
 	auxMax = max(auxMax, 
 		     getMatrizResultado(x0, j) + // G(x0, y) + G(x - x0, y)
@@ -52,9 +51,12 @@ void Guillotina::calcularMatriz(void) {
 }
 
 void Guillotina::calcularResultado(void) {
-  setConjuntoCortes(calcularResultadoSuperficial(getAnchoLamina(), getAltoLamina(), 0));
+  setConjuntoCortes(calcularResultado(getAnchoLamina(), getAltoLamina(), 0));
 }
 
+/*
+ * Calcula una única solución de la tabla
+ */
 vector < vector <int> > Guillotina::calcularResultadoSuperficial(int x, int y, int prof) {
   vector < vector <int> > solucionParcial;
   actualizarProfundidadMaxima(prof);
@@ -75,7 +77,6 @@ vector < vector <int> > Guillotina::calcularResultadoSuperficial(int x, int y, i
         }
       }
     }
-    
     for(int x0 = 1; x0 <= x / 2; x0++) {
       if((celdaxy == getMatrizResultado(x0, y) + getMatrizResultado(x - x0, y))) {
         solucionAdicional.clear();
@@ -142,10 +143,10 @@ vector < vector <int> > Guillotina::calcularResultadoSuperficial(int x, int y, i
   return solucionParcial;
 }
 
+/*
+ * Calcula todas las soluciones de la tabla
+ */
 vector < vector <int> > Guillotina::calcularResultado(int x, int y, int prof) {
-  
-  cout << x << " " << y << endl;
-  
   vector < vector <int> > solucionParcial;
   actualizarProfundidadMaxima(prof);
   if((x >= 0) && (y >= 0) && (getMatrizResultado(x, y) != 0)) {
@@ -234,7 +235,7 @@ void Guillotina::imprimirMatriz(void) {
   int anchoLamina = getAnchoLamina();
   for(int i = 0; i <= anchoLamina; i++) {
     for(int j = 0; j <= altoLamina; j++) {
-      cout << getMatrizResultado(i, j) << " ";
+      cout << getMatrizResultado(i, j) << "\t";
     }
     cout << endl;
   }
@@ -265,8 +266,6 @@ void Guillotina::imprimirCortes(void) {
 
 void Guillotina::imprimirCortesGraf(void) {
   int anchoLam = getAnchoLamina();
-  //int altoLam = getAltoLamina();
-  //int superficieSobrante = getAnchoLamina() * getAltoLamina();
   unsigned j;
   int anchoOcupado;
   vector<int> vectorAux;
@@ -336,11 +335,9 @@ void Guillotina::imprimirPiezaGraf(const vector<int>& piezasAImprimir) {
   int maxLongitud = 0;
   int anchoTotal = 0;
   int anchoImpreso;
-  //vector <int> altoImpresoPiezas; // Altura de cada pieza que se ha imprimido
   for(unsigned i = 0; i < piezasAImprimir.size(); i++) {
     maxLongitud = max(maxLongitud, getPieza(piezasAImprimir[i]).getAlto());
     anchoTotal += getPieza(piezasAImprimir[i]).getAncho();
-    //altoImpresoPiezas.push_back(0);
   }
   //for(int i = 0; i < anchoTotal; i++) { // i = ancho impreso
     for(int j = 1; j < maxLongitud; j++) { // j =  altura impresa
@@ -369,16 +366,6 @@ void Guillotina::imprimirPiezaGraf(const vector<int>& piezasAImprimir) {
       }
       cout << endl;
     }
-  //}
-  /*while((j < vectorAux.size()) && 
-          (vectorAux[j].getSuperficie() != superficieSobrante)) {
-      cout << "│";
-      if(vectorAux[j].getAncho() <= anchoLam - j) {
-        for(int k = 0; k < vectorAux[j].getAncho() - 1; k++) {
-	cout << " ";
-      }
-    }
-  }*/
 }
 
 void Guillotina::imprimirUnidadHorizontal(void) {
@@ -393,6 +380,15 @@ void Guillotina::imprimirEspacioHorizontal(void) {
 
 void Guillotina::imprimirEstadisticas(void) {
   cout << "Profundidad = " << getProfundidadMaxima() << endl;
+  /*cout << "Área desperdiciada = ";
+  if(getNumeroSoluciones() > 0) {
+    int areaCortada = 0;
+    vector<int> vectorAux = getConjuntoCortes(0);
+    for(int i = 0; i < vectorAux.size(); i++) {
+      areaCortada += getPieza(i).getAlto() * getPieza(i).getAncho();
+    }
+    cout << getAltoLamina() * getAnchoLamina() - areaCortada;
+  }*/
 }
 
 int Guillotina::piezaMaxBeneficio(int x, int y) {
